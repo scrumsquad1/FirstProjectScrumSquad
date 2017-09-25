@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace scrumSquad.Tests
+namespace scrumsquad.Tests
 {
     [TestClass]
     public class UnitTest1
