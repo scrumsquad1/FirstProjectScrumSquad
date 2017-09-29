@@ -3,15 +3,39 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-    
+
     Welcome to scrumsquad project
     <p class="text-muted">Sprint 3</p>
     <hr />
     <p>9/28/2017</p>
+
+    <div>
+    <h2>Search by ID</h2>
+    <input type="text" id="prodId" size="5" />
+    <input id="searchButton" type="button" value="Search" />
+    <p id="product" />
+    </div>
+    
+    <script>
+        $('#searchButton').click(() => {
+            let id = $('#propId').val();
+            if (id) {
+                let product = $('#product');
+                $.getJSON(`${uri}/${id}`)
+                    .done((data) => {
+                        product.text(formatItem(data));
+                    }).fail((err) => {
+                        product.text(err);
+                    });
+            } else {
+                product.text('Invalid input');
+            }
+        });
+    </script>
 
 </body>
 </html>
