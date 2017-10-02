@@ -7,21 +7,21 @@
 
     <div>
         <h2>All Products</h2>
-        <ul id="products"> </ul>
+        <ul id="notes"> </ul>
     </div>
     <div>
         <h2>Search by ID</h2>
-        <input type="text" id="prodId" size="5" />
+        <input type="text" id="noteId" size="5" />
         <input type="button" value="Search" onclick="find();" />
-        <p id="product"></p>
+        <p id="note"></p>
     </div>
 
     <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
     <script>
 
-        var uri = 'api/products';
-        var elProducts = $('#products');
-        var elProdId = $('#prodId');
+        var uri = 'api/notes';
+        var elNotes = $('#notes');
+        var elNoteId = $('#noteId');
 
         $(document).ready(function () {
             // Send an AJAX request
@@ -30,26 +30,26 @@
                     // On success, 'data' contains a list of products.
                     $.each(data, function (key, item) {
                         // Add a list item for the product.
-                        $('<li>', { text: formatItem(item) }).appendTo(elProducts);
+                        $('<li>', { text: formatItem(item) }).appendTo(elNotes);
                     });
                 }).fail(function (err) {
-                    elProducts.html('Error');
+                    elNotes.html('Error');
                     console.log(err);
                 });
         });
 
         function formatItem(item) {
-            return item.Name + ': $' + item.Price;
+            return item.Subject + ': ' + item.Details;
         }
 
         function find() {
-            var id = elProdId.val();
+            var id = elNoteId.val();
             $.getJSON(uri + '/' + id)
                 .done(function (data) {
-                    elProducts.text(formatItem(data));
+                    elNotes.text(formatItem(data));
                 })
                 .fail(function (jqXHR, textStatus, err) {
-                    elProducts.text('Error: ' + err);
+                    elNotes.text('Error: ' + err);
                 });
         }
 
