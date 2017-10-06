@@ -6,12 +6,12 @@ using System.Web;
 
 namespace scrumsquad.Models
 {
-	public class Notes
-	{
+    public class Note
+    {
         [BsonId]
         public string Id { get; set; }
-       public string Subject { get; set; }
-       public string Details { get; set; }
-       public int Priority { get; set; }
+        public string Subject { get; set; }
+        public string Details { get; set; }
+        public int Priority { get; set; }
     }
 }
