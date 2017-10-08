@@ -10,10 +10,28 @@
         <ul id="notes"> </ul>
     </div>
     <div>
-        <h2>Search by ID</h2>
+        <h2>Search by note Subject</h2>
         <input type="text" id="noteId" size="5" />
         <input type="button" value="Search" onclick="find();" />
         <p id="note"></p>
+    </div>
+    <div>
+        <h2>Delete a note by Subject</h2>
+        <input type="text" id="deleteId" size="5" />
+        <input type="button" value="Delete" onclick="del();" />
+        <p id="note"></p>
+    </div>
+    <div>
+        <h2>Insert Note</h2>
+        Subject: 
+        <input type="text" id="subject" size="30" />
+        <br />
+        Details: 
+        <input type="text" id="details" size="100" />
+        <br />
+        Priority: 
+        <input type="text" id="priority" size="30" />
+        <input type="button" value="insert" onclick="create();" />
     </div>
 
     <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
@@ -22,11 +40,18 @@
         var uri = 'api/notes';
         var elNotes = $('#notes');
         var elNoteId = $('#noteId');
+        var elDeleteId = $('#deleteId');
+        var elSubject = $('#subject');
+        var elDetails = $('#details');
+        var elPriority = $('#priority');
+
 
         $(document).ready(function () {
-            // Send an AJAX request
+ 
+           //  Send an AJAX request
             $.getJSON(uri)
                 .done(function (data) {
+                    console.log(data);
                     // On success, 'data' contains a list of products.
                     $.each(data, function (key, item) {
                         // Add a list item for the product.
@@ -52,7 +77,48 @@
                     elNotes.text('Error: ' + err);
                 });
         }
+        function create() {
+            var subject = elSubject.val();
+            var detail = elDetails.val();
+            var priority = elPriority.val();
+            var myNote = {
+                "Subject": subject,
+                "Details": detail,
+                "Priority": priority
+            };
+            $.ajax({
+                url: uri,
+                type: "POST",
+                data: JSON.stringify(myNote),
+                contentType: "application/json",
+                success: function (data) {
+                    console.log('success --> data :', data);
 
+                },
+                error: function (xhr, text, err) {
+                    console.log('error: ', err);
+                    console.log('text: ', text);
+                    console.log('xhr: ', xhr);
+                    console.log("there is a problem whit your request, please check ajax request");
+                }
+            });
+        } 
+        function del() {
+            var delSubject = elDeleteId.val(); 
+            $.ajax({
+                method: 'DELETE',
+                url: uri + '/' + delSubject,
+                success: function (data) {
+                    console.log('success');
+                },
+                error: function () {
+                    console.log('error');
+
+                }
+            });
+
+        }
+       
     </script>
 </body>
 </html>

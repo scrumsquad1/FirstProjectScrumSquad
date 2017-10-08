@@ -29,18 +29,18 @@ namespace scrumsquad.Controllers
             MongoUrl myMongoURL = new MongoUrl(ConfigurationManager.ConnectionStrings["MongoHQ"].ConnectionString);
             MongoClient mongoClient = new MongoClient(myMongoURL);
             MongoServer server = mongoClient.GetServer();
-            return mongoClient.GetServer().GetDatabase("kurtmd");
+            return mongoClient.GetServer().GetDatabase("notedb");
         }
 
-        public IEnumerable<Note> GetAllNotes()
-        {
-            mongoDatabase = RetreiveMongohqDb();
+        //public IEnumerable<Note> GetAllNotes()
+        //{
+        //    mongoDatabase = RetreiveMongohqDb();
 
-            List<Note> noteList = GetNoteList();
-            noteList.Sort(); // comment this out until you implement the IComparable<Note>
-                             // interface definition to your Note class,
-            return noteList;  // ASP API will convert a List of Note objects to json
-        }
+        //    List<Note> noteList = GetNoteList();
+        //    // noteList.Sort(); // comment this out until you implement the IComparable<Note>
+        //    // interface definition to your Note class,
+        //    return noteList;  // ASP API will convert a List of Note objects to json
+        //}
 
         public IHttpActionResult GetNote(string id)  // make sure its string
         {
@@ -67,7 +67,7 @@ namespace scrumsquad.Controllers
                 var mongoList = mongoDatabase.GetCollection("Notes").FindAll().AsEnumerable();
                 noteList = (from nextNote in mongoList
                             select new Note
-                            {
+                            {   
                                 Id = nextNote["_id"].AsString,
                                 Subject = nextNote["Subject"].AsString,
                                 Details = nextNote["Details"].AsString,
