@@ -13,5 +13,8 @@ namespace scrumsquad.Models
         public string Subject { get; set; }
         public string Details { get; set; }
         public int Priority { get; set; }
+
+
+
     }
 }

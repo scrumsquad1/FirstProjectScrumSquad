@@ -42,6 +42,7 @@ namespace scrumsquad.Controllers
         //    return noteList;  // ASP API will convert a List of Note objects to json
         //}
 
+        [HttpGet]
         public IHttpActionResult GetNote(string id)  // make sure its string
         {
             mongoDatabase = RetreiveMongohqDb();
@@ -84,7 +85,7 @@ namespace scrumsquad.Controllers
         }
 
         [HttpDelete]
-        public HttpResponseMessage DELETE(string id)
+        public HttpResponseMessage Delete(string id)
         {
             bool found = true;
             string subject = id;
@@ -92,7 +93,7 @@ namespace scrumsquad.Controllers
             {
                 mongoDatabase = RetreiveMongohqDb();
                 var mongoCollection = mongoDatabase.GetCollection("Notes");
-                var query = Query.EQ("Subject", subject);
+                var query = Query.EQ("_id", id);
                 WriteConcernResult results = mongoCollection.Remove(query);
 
                 if (results.DocumentsAffected < 1)
@@ -117,14 +118,17 @@ namespace scrumsquad.Controllers
                 goodResponse.StatusCode = HttpStatusCode.OK;
                 return goodResponse;
             }
+ 
         }
 
         [HttpPost]
         public Note Save(Note newNote)
         {
+            
             mongoDatabase = RetreiveMongohqDb();
             var noteList = mongoDatabase.GetCollection("Notes");
             WriteConcernResult result;
+
             bool hasError = false;
             if (string.IsNullOrEmpty(newNote.Id))
             {
@@ -150,6 +154,7 @@ namespace scrumsquad.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.InternalServerError);
             }
+
         }
 
     }

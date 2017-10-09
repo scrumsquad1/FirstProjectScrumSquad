@@ -1,124 +1,307 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Product App</title>
+    <title>Note App</title>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css">
+    <style>
+        .panel-heading h3 {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: normal;
+            width: 75%;
+            padding-top: 8px;
+        }
+
+        hr {
+            margin: 10px 0 10px 0
+        }
+    </style>
 </head>
 <body>
 
-    <div>
-        <h2>All Products</h2>
-        <ul id="notes"> </ul>
+<nav class="navbar navbar-default">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="#">ScrumSquad</a>
     </div>
-    <div>
-        <h2>Search by note Subject</h2>
-        <input type="text" id="noteId" size="5" />
-        <input type="button" value="Search" onclick="find();" />
-        <p id="note"></p>
-    </div>
-    <div>
-        <h2>Delete a note by Subject</h2>
-        <input type="text" id="deleteId" size="5" />
-        <input type="button" value="Delete" onclick="del();" />
-        <p id="note"></p>
-    </div>
-    <div>
-        <h2>Insert Note</h2>
-        Subject: 
-        <input type="text" id="subject" size="30" />
-        <br />
-        Details: 
-        <input type="text" id="details" size="100" />
-        <br />
-        Priority: 
-        <input type="text" id="priority" size="30" />
-        <input type="button" value="insert" onclick="create();" />
+    <span class="navbar-text">Sprint5</span>
+</nav>
+<div class="container">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">My Notes</h3>
+        </div>
+        <div class="panel-body">
+            <div id="error" class="alert alert-danger hidden" role="alert"></div>
+            <div id="display" class="container"></div>
+        </div>
+        <div class="panel-footer">
+            <input class="form-control" type="text" id="filter" placeholder="Filter Notes"/>
+        </div>
     </div>
 
-    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
-    <script>
+    <div id="edit-panel" class="panel panel-warning hidden">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">Edit Note: <span id="edit-subject"></span></h3>
+            <button class="btn btn-default pull-right" id="edit-close"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="panel-body">
+            <div class="form-inline">
+                <div class="form-group">
+                    <input id="in_Edit_Subject" type="text" placeholder="Subject" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input id="in_Edit_Priority" type="number" class="form-control" value="0" title="Priority">
+                </div>
+            </div>
+            <div class="form-group">
+                <input id="in_Edit_Details" type="text" placeholder="Details" class="form-control"/>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <button id="edit-submit" class="btn btn-warning form-control">Submit</button>
+        </div>
+    </div>
 
-        var uri = 'api/notes';
-        var elNotes = $('#notes');
-        var elNoteId = $('#noteId');
-        var elDeleteId = $('#deleteId');
-        var elSubject = $('#subject');
-        var elDetails = $('#details');
-        var elPriority = $('#priority');
+
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">New Note</h3>
+        </div>
+        <div class="panel-body">
+            <div class="form-inline">
+                <div class="form-group">
+                    <input id="in_Subject" type="text" placeholder="Subject" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input id="in_Priority" type="number" class="form-control" value="0" title="Priority">
+                </div>
+            </div>
+            <div class="form-group">
+                <input id="in_Details" type="text" placeholder="Details" class="form-control"/>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <button id="add" class="btn btn-success form-control">Add</button>
+        </div>
+    </div>
+
+</div>
 
 
-        $(document).ready(function () {
- 
-           //  Send an AJAX request
-            $.getJSON(uri)
-                .done(function (data) {
-                    console.log(data);
-                    // On success, 'data' contains a list of products.
-                    $.each(data, function (key, item) {
-                        // Add a list item for the product.
-                        $('<li>', { text: formatItem(item) }).appendTo(elNotes);
-                    });
-                }).fail(function (err) {
-                    elNotes.html('Error');
-                    console.log(err);
-                });
+<script>
+
+    //var NOTES_URI = "dummy.json";
+    var NOTES_URI = "/api/notes";
+
+    var el_Filter = $("#filter");
+    var el_Add = $("#add");
+    var el_Loading_Placeholder = $("#loading-placeholder");
+    var el_Display = $("#display");
+    var el_Error = $("#error");
+
+    var in_Subject = $("#in_Subject");
+    var in_Details = $("#in_Details");
+    var in_Priority = $("#in_Priority");
+
+    var el_Edit_Panel = $("#edit-panel");
+    var el_Edit_Close = $("#edit-close");
+    var el_Edit_Subject = $("#edit-subject");
+    var el_Edit_Submit = $("#edit-submit");
+    var in_Edit_Subject = $("#in_Edit_Subject");
+    var in_Edit_Priority = $("#in_Edit_Priority");
+    var in_Edit_Details = $("#in_Edit_Details");
+
+    var notes = null;
+    var hasError = false;
+    var editOpen = false;
+
+    var editingNote = null;
+
+    el_Add.click(function () {
+        addNote({
+            Subject: in_Subject.val(),
+            Details: in_Details.val(),
+            Priority: in_Priority.val()
         });
+    });
 
-        function formatItem(item) {
-            return item.Subject + ': ' + item.Details;
+    el_Edit_Submit.click(submitEdit);
+
+    function addNote(note) {
+        console.log(note);
+        $.ajax({
+            url: NOTES_URI,
+            type: 'POST',
+            data: JSON.stringify(note),
+            contentType: "application/json",
+            success: function (result) {
+
+                setError(null);
+                notes.push(result);
+
+                updateNotes();
+
+                in_Subject.val(null);
+                in_Details.val(null);
+                in_Priority.val(0);
+
+            },
+            error: function (err) {
+                console.error(err);
+                setError("Unable to delete note: " + err.statusText)
+            }
+        });
+    }
+
+    function deleteNote(note) {
+        $.ajax({
+            url: NOTES_URI + '/' + note.Id,
+            type: 'DELETE',
+            success: function (result) {
+                var index = notes.indexOf(note);
+                notes.splice(index, 1);
+                updateNotes();
+            },
+            error: function (err) {
+                console.error(err);
+                setError("Unable to delete note: " + err.statusText)
+            }
+        });
+    }
+
+    function setError(message) {
+        hasError = (message !== null);
+        if (message) {
+            el_Error.removeClass("hidden");
+            el_Error.html(message);
+        } else {
+            el_Error.addClass("hidden");
         }
+    }
 
-        function find() {
-            var id = elNoteId.val();
-            $.getJSON(uri + '/' + id)
-                .done(function (data) {
-                    elNotes.text(formatItem(data));
-                })
-                .fail(function (jqXHR, textStatus, err) {
-                    elNotes.text('Error: ' + err);
-                });
-        }
-        function create() {
-            var subject = elSubject.val();
-            var detail = elDetails.val();
-            var priority = elPriority.val();
-            var myNote = {
-                "Subject": subject,
-                "Details": detail,
-                "Priority": priority
-            };
-            $.ajax({
-                url: uri,
-                type: "POST",
-                data: JSON.stringify(myNote),
-                contentType: "application/json",
-                success: function (data) {
-                    console.log('success --> data :', data);
+    function fetchNotes() {
+        $.getJSON(NOTES_URI)
+            .success(function (result) {
 
-                },
-                error: function (xhr, text, err) {
-                    console.log('error: ', err);
-                    console.log('text: ', text);
-                    console.log('xhr: ', xhr);
-                    console.log("there is a problem whit your request, please check ajax request");
+                if (!result) {
+                    setError("Unable to retrieve notes");
+                } else {
+                    notes = result;
+                    updateNotes();
                 }
-            });
-        } 
-        function del() {
-            var delSubject = elDeleteId.val(); 
-            $.ajax({
-                method: 'DELETE',
-                url: uri + '/' + delSubject,
-                success: function (data) {
-                    console.log('success');
-                },
-                error: function () {
-                    console.log('error');
 
+            })
+            .fail(function (err) {
+                console.error(err);
+                setError("Unable to fetch notes: " + err.statusText)
+            })
+    }
+
+    function editNote(note) {
+        editOpen = true;
+        editingNote = note;
+        el_Edit_Panel.removeClass("hidden");
+        el_Edit_Subject.html(note.Subject);
+        in_Edit_Details.val(note.Details);
+        in_Edit_Priority.val(note.Priority);
+        in_Edit_Subject.val(note.Subject);
+    }
+
+    function closeEdit() {
+        editOpen = false;
+        editingNote = null;
+        el_Edit_Panel.addClass("hidden");
+        in_Edit_Details.val(null);
+        in_Edit_Priority.val(null);
+        in_Edit_Subject.val(null);
+    }
+
+    function submitEdit() {
+        $.ajax({
+            url: NOTES_URI,
+            type: 'POST',
+            data: JSON.stringify({
+                Id: editingNote.Id,
+                Subject: in_Edit_Subject.val(),
+                Details: in_Edit_Details.val(),
+                Priority: in_Edit_Priority.val()
+            }),
+            contentType: "application/json",
+            success: function (result) {
+
+                setError(null);
+
+                var index = notes.indexOf(editingNote);
+                notes.splice(index, 1);
+                notes.push(result);
+
+                updateNotes();
+
+                closeEdit();
+
+
+            },
+            error: function (err) {
+                console.error(err);
+                setError("Unable to edit note: " + err.statusText)
+            }
+        });
+    }
+
+    function updateNotes() {
+        if (hasError)
+            setError(null);
+
+        el_Display.empty();
+        notes.forEach(function (note, index) {
+            if (!el_Filter.val() || note.Subject.indexOf(el_Filter.val()) > -1) {
+                el_Display.append(generateNoteView(note));
+                if (index < notes.length - 1) {
+                    el_Display.append("<hr/>");
                 }
-            });
+            }
+        });
+        $('.note .delete-button').click(function (t) {
+            var clickedId = t.target.parentNode.id.replace("note_", "");
+            notes.forEach(function (note) {
+                if (note.Id == clickedId) {
+                    deleteNote(note);
+                }
+            })
+        })
+        $('.note .edit-button').click(function (t) {
+            var clickedId = t.target.parentNode.id.replace("note_", "");
+            notes.forEach(function (note) {
+                if (note.Id == clickedId) {
+                    editNote(note);
+                }
+            })
+        })
+    }
 
+    function generateNoteView(note) {
+        return "<div class='note' id='note_" + note.Id + "'>" +
+            "<p>" + note.Subject + "</p>" +
+            "<p class='text-muted'>" + note.Details + "</p>" +
+            "<button class='btn btn-danger delete-button'>Delete</button> " +
+            "<button class='btn btn-warning edit-button'>Edit</button> " +
+            "</div>" +
+            "</div>";
+    }
+
+    $(document).ready(fetchNotes);
+    el_Filter.keyup(updateNotes);
+    el_Edit_Close.click(closeEdit);
+    in_Edit_Subject.keyup(function(i) {
+        if(editingNote) {
+            el_Edit_Subject.html(i.target.value)
         }
-       
-    </script>
+    })
+
+</script>
 </body>
 </html>
