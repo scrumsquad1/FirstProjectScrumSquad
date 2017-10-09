@@ -22,114 +22,148 @@
 </head>
 <body>
 
+<!--Navbar-->
 <nav class="navbar navbar-default">
     <div class="navbar-header">
         <a class="navbar-brand" href="#">ScrumSquad</a>
     </div>
     <span class="navbar-text">Sprint5</span>
 </nav>
+
+<!-- Main -->
 <div class="container">
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">My Notes</h3>
+    <div class="col-md-6">
+
+        <!-- Notes Panel -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">My Notes</h3>
+            </div>
+            <div class="panel-body">
+                <div id="div_error_display" class="alert alert-danger hidden" role="alert"></div>
+                <!-- Auto Generated Notes -->
+                <div id="div_notes_list" class="container"></div>
+            </div>
+            <div class="panel-footer">
+                <input class="form-control" type="text" id="in_text_filter" placeholder="Filter Notes"/>
+            </div>
         </div>
-        <div class="panel-body">
-            <div id="error" class="alert alert-danger hidden" role="alert"></div>
-            <div id="display" class="container"></div>
-        </div>
-        <div class="panel-footer">
-            <input class="form-control" type="text" id="filter" placeholder="Filter Notes"/>
-        </div>
+
     </div>
 
-    <div id="edit-panel" class="panel panel-warning hidden">
-        <div class="panel-heading clearfix">
-            <h3 class="panel-title pull-left">Edit Note: <span id="edit-subject"></span></h3>
-            <button class="btn btn-default pull-right" id="edit-close"><span class="glyphicon glyphicon-remove"></span></button>
-        </div>
-        <div class="panel-body">
-            <div class="form-inline">
-                <div class="form-group">
-                    <input id="in_Edit_Subject" type="text" placeholder="Subject" class="form-control">
-                </div>
-                <div class="form-group">
-                    <input id="in_Edit_Priority" type="number" class="form-control" value="0" title="Priority">
-                </div>
-            </div>
-            <div class="form-group">
-                <input id="in_Edit_Details" type="text" placeholder="Details" class="form-control"/>
-            </div>
-        </div>
-        <div class="panel-footer">
-            <button id="edit-submit" class="btn btn-warning form-control">Submit</button>
-        </div>
-    </div>
+    <div class="col-md-6">
 
+        <!--Edit Panel -->
+        <!--Start Hidden-->
+        <div id="panel_edit" class="panel panel-warning hidden">
+            <div class="panel-heading clearfix">
+                <h3 class="panel-title pull-left">Edit Note: <span id="span_edit_subject"></span></h3>
+                <button class="btn btn-default pull-right" id="in_button_close_edit"><span class="glyphicon glyphicon-remove"></span></button>
+            </div>
+            <div class="panel-body">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <input id="in_text_edit_subject" type="text" placeholder="Subject" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input id="in_number_edit_priority" type="number" class="form-control" value="0" title="Priority">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input id="in_text_edit_details" type="text" placeholder="Details" class="form-control"/>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button id="in_button_edit_submit" class="btn btn-warning form-control">Submit</button>
+            </div>
+        </div>
 
-    <div class="panel panel-success">
-        <div class="panel-heading">
-            <h3 class="panel-title">New Note</h3>
-        </div>
-        <div class="panel-body">
-            <div class="form-inline">
-                <div class="form-group">
-                    <input id="in_Subject" type="text" placeholder="Subject" class="form-control">
+        <!-- New Note Panel -->
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3 class="panel-title">New Note</h3>
+            </div>
+            <div class="panel-body">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <input id="in_text_subject" type="text" placeholder="Subject" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input id="in_number_priority" type="number" class="form-control" value="0" title="Priority">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <input id="in_Priority" type="number" class="form-control" value="0" title="Priority">
+                    <input id="in_text_details" type="text" placeholder="Details" class="form-control"/>
                 </div>
             </div>
-            <div class="form-group">
-                <input id="in_Details" type="text" placeholder="Details" class="form-control"/>
+            <div class="panel-footer">
+                <button id="in_button_add_note" class="btn btn-success form-control">Add</button>
             </div>
         </div>
-        <div class="panel-footer">
-            <button id="add" class="btn btn-success form-control">Add</button>
-        </div>
+
     </div>
 
 </div>
 
-
 <script>
 
-    //var NOTES_URI = "dummy.json";
     var NOTES_URI = "/api/notes";
 
-    var el_Filter = $("#filter");
-    var el_Add = $("#add");
-    var el_Loading_Placeholder = $("#loading-placeholder");
-    var el_Display = $("#display");
-    var el_Error = $("#error");
+    // Notes Panel
+    var el_Display = $("#div_notes_list");
+    var el_Error = $("#div_error_display");
+    var in_Text_Filter = $("#in_text_filter");
 
-    var in_Subject = $("#in_Subject");
-    var in_Details = $("#in_Details");
-    var in_Priority = $("#in_Priority");
+    // Add Note Panel
+    var in_Button_Add_Note = $("#in_button_add_note");
+    var in_Text_Subject = $("#in_text_subject");
+    var in_Text_Details = $("#in_text_details");
+    var in_Number_Priority = $("#in_number_priority");
 
-    var el_Edit_Panel = $("#edit-panel");
-    var el_Edit_Close = $("#edit-close");
-    var el_Edit_Subject = $("#edit-subject");
-    var el_Edit_Submit = $("#edit-submit");
-    var in_Edit_Subject = $("#in_Edit_Subject");
-    var in_Edit_Priority = $("#in_Edit_Priority");
-    var in_Edit_Details = $("#in_Edit_Details");
+    // Edit Note Panel
+    var el_Panel_Edit = $("#panel_edit");
+    var el_Span_Edit_Subject = $("#span_edit_subject");
+    var el_Edit_Submit = $("#in_button_edit_submit");
+    var in_Button_Close_Edit = $("#in_button_close_edit");
+    var in_Text_Edit_Subject = $("#in_text_edit_subject");
+    var in_Number_Edit_Priority = $("#in_number_edit_priority");
+    var in_Text_Edit_Details = $("#in_text_edit_details");
 
-    var notes = null;
+    var notesList = null;
     var hasError = false;
     var editOpen = false;
 
     var editingNote = null;
 
-    el_Add.click(function () {
+    $(document).ready(fetchNotes);
+
+    in_Button_Add_Note.click(function () {
         addNote({
-            Subject: in_Subject.val(),
-            Details: in_Details.val(),
-            Priority: in_Priority.val()
+            Subject: in_Text_Subject.val(),
+            Details: in_Text_Details.val(),
+            Priority: in_Number_Priority.val()
         });
     });
 
-    el_Edit_Submit.click(submitEdit);
+    el_Edit_Submit.click(function () {
+        addEdit({
+            Id: editingNote.Id,
+            Subject: in_Text_Edit_Subject.val(),
+            Details: in_Text_Edit_Details.val(),
+            Priority: in_Number_Edit_Priority.val()
+        })
+    });
+
+    in_Text_Filter.keyup(updateNotes);
+
+    in_Button_Close_Edit.click(closeEdit);
+    in_Text_Edit_Subject.keyup(function (i) {
+        if (editingNote) {
+            el_Span_Edit_Subject.html(i.target.value)
+        }
+    });
+
 
     function addNote(note) {
         console.log(note);
@@ -141,13 +175,13 @@
             success: function (result) {
 
                 setError(null);
-                notes.push(result);
+                notesList.push(result);
 
                 updateNotes();
 
-                in_Subject.val(null);
-                in_Details.val(null);
-                in_Priority.val(0);
+                in_Text_Subject.val(null);
+                in_Text_Details.val(null);
+                in_Number_Priority.val(0);
 
             },
             error: function (err) {
@@ -157,13 +191,40 @@
         });
     }
 
+    function addEdit(note) {
+        $.ajax({
+            url: NOTES_URI,
+            type: 'POST',
+            data: JSON.stringify(note),
+            contentType: "application/json",
+            success: function (result) {
+
+                setError(null);
+
+                var index = notesList.indexOf(editingNote);
+                notesList.splice(index, 1);
+                notesList.push(result);
+
+                updateNotes();
+
+                closeEdit();
+
+
+            },
+            error: function (err) {
+                console.error(err);
+                setError("Unable to edit note: " + err.statusText)
+            }
+        });
+    }
+
     function deleteNote(note) {
         $.ajax({
             url: NOTES_URI + '/' + note.Id,
             type: 'DELETE',
             success: function (result) {
-                var index = notes.indexOf(note);
-                notes.splice(index, 1);
+                var index = notesList.indexOf(note);
+                notesList.splice(index, 1);
                 updateNotes();
             },
             error: function (err) {
@@ -190,7 +251,7 @@
                 if (!result) {
                     setError("Unable to retrieve notes");
                 } else {
-                    notes = result;
+                    notesList = result;
                     updateNotes();
                 }
 
@@ -204,52 +265,20 @@
     function editNote(note) {
         editOpen = true;
         editingNote = note;
-        el_Edit_Panel.removeClass("hidden");
-        el_Edit_Subject.html(note.Subject);
-        in_Edit_Details.val(note.Details);
-        in_Edit_Priority.val(note.Priority);
-        in_Edit_Subject.val(note.Subject);
+        el_Panel_Edit.removeClass("hidden");
+        el_Span_Edit_Subject.html(note.Subject);
+        in_Text_Edit_Details.val(note.Details);
+        in_Number_Edit_Priority.val(note.Priority);
+        in_Text_Edit_Subject.val(note.Subject);
     }
 
     function closeEdit() {
         editOpen = false;
         editingNote = null;
-        el_Edit_Panel.addClass("hidden");
-        in_Edit_Details.val(null);
-        in_Edit_Priority.val(null);
-        in_Edit_Subject.val(null);
-    }
-
-    function submitEdit() {
-        $.ajax({
-            url: NOTES_URI,
-            type: 'POST',
-            data: JSON.stringify({
-                Id: editingNote.Id,
-                Subject: in_Edit_Subject.val(),
-                Details: in_Edit_Details.val(),
-                Priority: in_Edit_Priority.val()
-            }),
-            contentType: "application/json",
-            success: function (result) {
-
-                setError(null);
-
-                var index = notes.indexOf(editingNote);
-                notes.splice(index, 1);
-                notes.push(result);
-
-                updateNotes();
-
-                closeEdit();
-
-
-            },
-            error: function (err) {
-                console.error(err);
-                setError("Unable to edit note: " + err.statusText)
-            }
-        });
+        el_Panel_Edit.addClass("hidden");
+        in_Text_Edit_Details.val(null);
+        in_Number_Edit_Priority.val(null);
+        in_Text_Edit_Subject.val(null);
     }
 
     function updateNotes() {
@@ -257,17 +286,17 @@
             setError(null);
 
         el_Display.empty();
-        notes.forEach(function (note, index) {
-            if (!el_Filter.val() || note.Subject.indexOf(el_Filter.val()) > -1) {
+        notesList.forEach(function (note, index) {
+            if (!in_Text_Filter.val() || note.Subject.indexOf(in_Text_Filter.val()) > -1) {
                 el_Display.append(generateNoteView(note));
-                if (index < notes.length - 1) {
+                if (index < notesList.length - 1) {
                     el_Display.append("<hr/>");
                 }
             }
         });
         $('.note .delete-button').click(function (t) {
             var clickedId = t.target.parentNode.id.replace("note_", "");
-            notes.forEach(function (note) {
+            notesList.forEach(function (note) {
                 if (note.Id == clickedId) {
                     deleteNote(note);
                 }
@@ -275,7 +304,7 @@
         })
         $('.note .edit-button').click(function (t) {
             var clickedId = t.target.parentNode.id.replace("note_", "");
-            notes.forEach(function (note) {
+            notesList.forEach(function (note) {
                 if (note.Id == clickedId) {
                     editNote(note);
                 }
@@ -293,15 +322,7 @@
             "</div>";
     }
 
-    $(document).ready(fetchNotes);
-    el_Filter.keyup(updateNotes);
-    el_Edit_Close.click(closeEdit);
-    in_Edit_Subject.keyup(function(i) {
-        if(editingNote) {
-            el_Edit_Subject.html(i.target.value)
-        }
-    })
-
 </script>
+
 </body>
 </html>
