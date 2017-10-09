@@ -79,7 +79,7 @@ namespace scrumsquad.Controllers
             {
                 throw ex;
             }
-
+            noteList.Sort(); 
             return noteList;
 
         }
@@ -153,8 +153,7 @@ namespace scrumsquad.Controllers
             else
             {
                 throw new HttpResponseException(HttpStatusCode.InternalServerError);
-            }
-
+            } 
         }
 
     }
