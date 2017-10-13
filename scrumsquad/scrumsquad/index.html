@@ -1,328 +1,92 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Note App</title>
+
     <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+
+    <script src="Scripts/api.js"></script>
+    <script src="Scripts/main.js"></script>
+    <script>
+        $(document).ready(() => {
+
+            const header = $(".templates .header");
+            const footer = $(".templates .footer");
+
+            $(":not(.templates) .header").replaceWith(header.clone());
+            $(":not(.templates) .footer").replaceWith(footer.clone());
+
+        });
+    </script>
+
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+    <!--Fixing broken ListView css. Someone should report this to Jquery-->
     <style>
-        .panel-heading h3 {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: normal;
-            width: 75%;
-            padding-top: 8px;
+        .ui-listview > li h1, .ui-listview > li h2, .ui-listview > li h3, .ui-listview > li h4, .ui-listview > li h5, .ui-listview > li h6 {
+            margin: 0
         }
 
-        hr {
-            margin: 10px 0 10px 0
+        .ui-listview > .ui-li-static {
+            padding: 0
         }
     </style>
+
 </head>
 <body>
 
-<!--Navbar-->
-<nav class="navbar navbar-default">
-    <div class="navbar-header">
-        <a class="navbar-brand" href="#">ScrumSquad</a>
-    </div>
-    <span class="navbar-text">Sprint5</span>
-</nav>
+<!--Templates-->
+<div class="templates">
 
-<!-- Main -->
-<div class="container">
-
-    <div class="col-md-6">
-
-        <!-- Notes Panel -->
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">My Notes</h3>
-            </div>
-            <div class="panel-body">
-                <div id="div_error_display" class="alert alert-danger hidden" role="alert"></div>
-                <!-- Auto Generated Notes -->
-                <div id="div_notes_list" class="container"></div>
-            </div>
-            <div class="panel-footer">
-                <input class="form-control" type="text" id="in_text_filter" placeholder="Filter Notes"/>
-            </div>
+    <!--Header-->
+    <div class="header">
+        <div data-role="header" data-theme="a">
+            <h3>::Placeholder::</h3>
+            <a href="#main">Main</a>
+            <a href="#add">Add</a>
         </div>
-
     </div>
 
-    <div class="col-md-6">
-
-        <!--Edit Panel -->
-        <!--Start Hidden-->
-        <div id="panel_edit" class="panel panel-warning hidden">
-            <div class="panel-heading clearfix">
-                <h3 class="panel-title pull-left">Edit Note: <span id="span_edit_subject"></span></h3>
-                <button class="btn btn-default pull-right" id="in_button_close_edit"><span class="glyphicon glyphicon-remove"></span></button>
-            </div>
-            <div class="panel-body">
-                <div class="form-inline">
-                    <div class="form-group">
-                        <input id="in_text_edit_subject" type="text" placeholder="Subject" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <input id="in_number_edit_priority" type="number" class="form-control" value="0" title="Priority">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <input id="in_text_edit_details" type="text" placeholder="Details" class="form-control"/>
-                </div>
-            </div>
-            <div class="panel-footer">
-                <button id="in_button_edit_submit" class="btn btn-warning form-control">Submit</button>
-            </div>
-        </div>
-
-        <!-- New Note Panel -->
-        <div class="panel panel-success">
-            <div class="panel-heading">
-                <h3 class="panel-title">New Note</h3>
-            </div>
-            <div class="panel-body">
-                <div class="form-inline">
-                    <div class="form-group">
-                        <input id="in_text_subject" type="text" placeholder="Subject" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <input id="in_number_priority" type="number" class="form-control" value="0" title="Priority">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <input id="in_text_details" type="text" placeholder="Details" class="form-control"/>
-                </div>
-            </div>
-            <div class="panel-footer">
-                <button id="in_button_add_note" class="btn btn-success form-control">Add</button>
-            </div>
-        </div>
-
+    <!--Footer-->
+    <div class="footer" data-role="footer" data-theme="a">
+        <h1>Sprint6!!!!</h1>
     </div>
+
+    <!-- Note -->
+    <li data-role="collapsible" data-iconpos="right" data-inset="false" class="note">
+        <h2><span class="note_title"></span> [<span class="note_priority"></span>]</h2>
+        <div>
+            <p><span class="note_details"></span></p>
+            <fieldset data-role="controlgroup" data-type="horizontal">
+                <button class="ui-btn ui-btn-inline ui-icon-edit ui-btn-icon-left edit-button">Edit</button>
+                <button class="ui-btn ui-btn-inline ui-icon-delete ui-btn-icon-right delete-button">Delete</button>
+            </fieldset>
+        </div>
+    </li>
 
 </div>
 
-<script>
+<!-- Content-->
+<div data-role="page" id="main">
+    <div class="header"></div>
+    <div class="ui-content" role="main">
+        <ul data-role="listview" data-inset="true" data-shadow="false" id="notes_display" data-filter="true">
 
-    var NOTES_URI = "/api/notes";
-
-    // Notes Panel
-    var el_Display = $("#div_notes_list");
-    var el_Error = $("#div_error_display");
-    var in_Text_Filter = $("#in_text_filter");
-
-    // Add Note Panel
-    var in_Button_Add_Note = $("#in_button_add_note");
-    var in_Text_Subject = $("#in_text_subject");
-    var in_Text_Details = $("#in_text_details");
-    var in_Number_Priority = $("#in_number_priority");
-
-    // Edit Note Panel
-    var el_Panel_Edit = $("#panel_edit");
-    var el_Span_Edit_Subject = $("#span_edit_subject");
-    var el_Edit_Submit = $("#in_button_edit_submit");
-    var in_Button_Close_Edit = $("#in_button_close_edit");
-    var in_Text_Edit_Subject = $("#in_text_edit_subject");
-    var in_Number_Edit_Priority = $("#in_number_edit_priority");
-    var in_Text_Edit_Details = $("#in_text_edit_details");
-
-    var notesList = null;
-    var hasError = false;
-    var editOpen = false;
-
-    var editingNote = null;
-
-    $(document).ready(fetchNotes);
-
-    in_Button_Add_Note.click(function () {
-        addNote({
-            Subject: in_Text_Subject.val(),
-            Details: in_Text_Details.val(),
-            Priority: in_Number_Priority.val()
-        });
-    });
-
-    el_Edit_Submit.click(function () {
-        addEdit({
-            Id: editingNote.Id,
-            Subject: in_Text_Edit_Subject.val(),
-            Details: in_Text_Edit_Details.val(),
-            Priority: in_Number_Edit_Priority.val()
-        })
-    });
-
-    in_Text_Filter.keyup(updateNotes);
-
-    in_Button_Close_Edit.click(closeEdit);
-    in_Text_Edit_Subject.keyup(function (i) {
-        if (editingNote) {
-            el_Span_Edit_Subject.html(i.target.value)
-        }
-    });
-
-
-    function addNote(note) {
-        console.log(note);
-        $.ajax({
-            url: NOTES_URI,
-            type: 'POST',
-            data: JSON.stringify(note),
-            contentType: "application/json",
-            success: function (result) {
-
-                setError(null);
-                notesList.push(result);
-
-                updateNotes();
-
-                in_Text_Subject.val(null);
-                in_Text_Details.val(null);
-                in_Number_Priority.val(0);
-
-            },
-            error: function (err) {
-                console.error(err);
-                setError("Unable to delete note: " + err.statusText)
-            }
-        });
-    }
-
-    function addEdit(note) {
-        $.ajax({
-            url: NOTES_URI,
-            type: 'POST',
-            data: JSON.stringify(note),
-            contentType: "application/json",
-            success: function (result) {
-
-                setError(null);
-
-                var index = notesList.indexOf(editingNote);
-                notesList.splice(index, 1);
-                notesList.push(result);
-
-                updateNotes();
-
-                closeEdit();
-
-
-            },
-            error: function (err) {
-                console.error(err);
-                setError("Unable to edit note: " + err.statusText)
-            }
-        });
-    }
-
-    function deleteNote(note) {
-        $.ajax({
-            url: NOTES_URI + '/' + note.Id,
-            type: 'DELETE',
-            success: function (result) {
-                var index = notesList.indexOf(note);
-                notesList.splice(index, 1);
-                updateNotes();
-            },
-            error: function (err) {
-                console.error(err);
-                setError("Unable to delete note: " + err.statusText)
-            }
-        });
-    }
-
-    function setError(message) {
-        hasError = (message !== null);
-        if (message) {
-            el_Error.removeClass("hidden");
-            el_Error.html(message);
-        } else {
-            el_Error.addClass("hidden");
-        }
-    }
-
-    function fetchNotes() {
-        $.getJSON(NOTES_URI)
-            .success(function (result) {
-
-                if (!result) {
-                    setError("Unable to retrieve notes");
-                } else {
-                    notesList = result;
-                    updateNotes();
-                }
-
-            })
-            .fail(function (err) {
-                console.error(err);
-                setError("Unable to fetch notes: " + err.statusText)
-            })
-    }
-
-    function editNote(note) {
-        editOpen = true;
-        editingNote = note;
-        el_Panel_Edit.removeClass("hidden");
-        el_Span_Edit_Subject.html(note.Subject);
-        in_Text_Edit_Details.val(note.Details);
-        in_Number_Edit_Priority.val(note.Priority);
-        in_Text_Edit_Subject.val(note.Subject);
-    }
-
-    function closeEdit() {
-        editOpen = false;
-        editingNote = null;
-        el_Panel_Edit.addClass("hidden");
-        in_Text_Edit_Details.val(null);
-        in_Number_Edit_Priority.val(null);
-        in_Text_Edit_Subject.val(null);
-    }
-
-    function updateNotes() {
-        if (hasError)
-            setError(null);
-
-        el_Display.empty();
-        notesList.forEach(function (note, index) {
-            if (!in_Text_Filter.val() || note.Subject.indexOf(in_Text_Filter.val()) > -1) {
-                el_Display.append(generateNoteView(note));
-                if (index < notesList.length - 1) {
-                    el_Display.append("<hr/>");
-                }
-            }
-        });
-        $('.note .delete-button').click(function (t) {
-            var clickedId = t.target.parentNode.id.replace("note_", "");
-            notesList.forEach(function (note) {
-                if (note.Id == clickedId) {
-                    deleteNote(note);
-                }
-            })
-        })
-        $('.note .edit-button').click(function (t) {
-            var clickedId = t.target.parentNode.id.replace("note_", "");
-            notesList.forEach(function (note) {
-                if (note.Id == clickedId) {
-                    editNote(note);
-                }
-            })
-        })
-    }
-
-    function generateNoteView(note) {
-        return "<div class='note' id='note_" + note.Id + "'>" +
-            "<p>" + note.Subject + "</p>" +
-            "<p class='text-muted'>" + note.Details + "</p>" +
-            "<button class='btn btn-danger delete-button'>Delete</button> " +
-            "<button class='btn btn-warning edit-button'>Edit</button> " +
-            "</div>" +
-            "</div>";
-    }
-
-</script>
+        </ul>
+        <div class="footer"></div>
+    </div>
+    <div data-role="page" id="add">
+        <div class="header"></div>
+        <p>Add!</p>
+        <div class="footer"></div>
+    </div>
+    <div data-role="page" id="delete">
+        <div class="header"></div>
+        <p>Delete!</p>
+        <div class="footer"></div>
+    </div>
 
 </body>
 </html>
