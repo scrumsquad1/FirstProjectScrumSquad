@@ -77,11 +77,40 @@
         </ul>
         <div class="footer"></div>
     </div>
+</div>
+
     <div data-role="page" id="add">
+        <div data-theme="b" data-role="header">
+            <div class="header"></div>
+                <h3 class="panel-title" id="noteTitle"></h3>
+            </div>
+            <div data-role="content" data-theme="b">               
+                    <div class="panel-body">
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <input id="in_text_subject" type="text" placeholder="Subject" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input id="in_number_priority" type="number" class="form-control" value="0" title="Priority">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input id="in_text_details" type="text" placeholder="Details" class="form-control" />
+                        </div>
+                    </div>
+                </div>           
+        <div data-theme="b" data-role="footer">
+            <button id="in_button_add_note" class="btn btn-success form-control">Submit</button>
+        </div>
+        </div>
+
+    <div data-role="page" id="edit">
         <div class="header"></div>
-        <p>Add!</p>
+        <p>Edit!</p>
         <div class="footer"></div>
     </div>
+           
+
     <div data-role="page" id="delete">
         <div class="header"></div>
         <p>Delete!</p>
