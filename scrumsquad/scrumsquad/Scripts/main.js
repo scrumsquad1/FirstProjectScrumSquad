@@ -27,6 +27,9 @@ $(document).on('pagebeforeshow ', '#main', function () {   // see: https://stack
         newNote.find('.edit-button').click(() => {
             editNote(note)
         });
+        newNote.find('#detailsButton').click(() => {
+            detailedNote(note)
+        });
 
         return newNote
     }
@@ -47,6 +50,14 @@ $(document).on('pagebeforeshow ', '#main', function () {   // see: https://stack
 
     }
 
+    function detailedNote(note) {
+        focusNote = note;
+        console.log('note details called');
+        console.log(focusNote);
+        $.mobile.changePage($("#details"))
+
+    }
+
     function deleteNote(note) {
         apiDeleteNote(note, (err) => {
             if (!err) {
@@ -60,10 +71,10 @@ $(document).on('pagebeforeshow ', '#main', function () {   // see: https://stack
 
 $(document).on('pagebeforeshow ', '#add', function () {   // see: https://stackoverflow.com/questions/14468659/jquery-mobile-document-ready-vs-page-events
     let pressCount = 0;
-    let in_Button_Add_Note = $("#in_button_add_note");
-    let in_Text_Subject = $("#in_text_subject");
-    let in_Text_Details = $("#in_text_details");
-    let in_Number_Priority = $("#in_number_priority");   
+    var in_Button_Add_Note = $("#in_button_add_note");
+    var in_Text_Subject = $("#in_text_subject");
+    var in_Text_Details = $("#in_text_details");
+    var in_Number_Priority = $("#in_number_priority");   
 
     if (focusNote != null) {         
         in_Text_Subject.val(focusNote.Subject);
@@ -118,6 +129,15 @@ $(document).on('pagebeforeshow ', '#add', function () {   // see: https://stacko
                 });                     
         }
     });
+});
+$(document).on('pagebeforeshow ', '#details', function () {
+    let displayNote = $("#showData");
+    let noteTitle = $("#noteTitle");
+    let titleText = "" + focusNote.Subject; 
+    let noteText = "<p>Priority: " + focusNote.Priority + "<br /> Subject: " + focusNote.Subject + "<br /> Details: " + focusNote.Details + "</p>";    
+    noteTitle.text(titleText); 
+    displayNote.html(noteText);
+
 });
 
 
