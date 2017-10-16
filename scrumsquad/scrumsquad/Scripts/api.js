@@ -23,7 +23,6 @@ function apiGetNotes(callback) {
 }
 
 function apiAddNote(note, callback) {
-    console.log(note);
     $.ajax({
         url: NOTES_URI,
         type: 'POST',

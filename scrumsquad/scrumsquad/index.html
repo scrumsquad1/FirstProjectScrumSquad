@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 
     <script src="Scripts/api.js"></script>
+    <script src="Scripts/NoteList.js"></script>
     <script src="Scripts/main.js"></script>
+
     <script>
         $(document).ready(() => {
 
@@ -43,7 +45,7 @@
     <!--Header-->
     <div class="header">
         <div data-role="header" data-theme="a">
-            <h3>::Placeholder::</h3>
+            <h3><span class="page_title"></span></h3>
             <a href="#main">Main</a>
             <a href="#add">Add</a>
         </div>
@@ -62,7 +64,7 @@
             <fieldset data-role="controlgroup" data-type="horizontal">
                 <button class="ui-btn ui-btn-inline ui-icon-edit ui-btn-icon-left edit-button">Edit</button>
                 <button class="ui-btn ui-btn-inline ui-icon-delete ui-btn-icon-right delete-button">Delete</button>
-                <button id="detailsButton" class="ui-btn ui-btn-inline ui-btn-icon-right">Details</button>
+                <button id="detailsButton" class="ui-btn  ui-icon-info ui-btn-inline ui-btn-icon-right">Details</button>
             </fieldset>
         </div>
     </li>
@@ -80,56 +82,56 @@
     </div>
 </div>
 
-    <div data-role="page" id="add">
-        <div data-theme="b" data-role="header">
-            <div class="header"></div>             
-            </div>
-            <div data-role="content" data-theme="b">               
-                    <div class="panel-body">
-                        <div class="form-inline">
-                            <div class="form-group">
-                                <input id="in_text_subject" type="text" placeholder="Subject" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <input id="in_number_priority" type="number" class="form-control" value="0" title="Priority">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <input id="in_text_details" type="text" placeholder="Details" class="form-control" />
-                        </div>
-                    </div>
-                </div>           
-        <div data-theme="b" data-role="footer">
-            <button id="in_button_add_note" class="btn btn-success form-control">Submit</button>
-        </div>
-        </div>
-
-    <div data-role="page" id="edit">
+<div data-role="page" id="add">
+    <div data-role="header">
         <div class="header"></div>
-        <p>Edit!</p>
-        <div class="footer"></div>
     </div>
-
-    <div data-role="page" id="details">
-        <div data-theme="b" data-role="header">
-            <div class="header"><h3>Details</h3></div>
-            <h3 id="noteTitle"></h3>
-        </div>
-        <div data-role="content" data-theme="b">
-            <div class="panel-body">               
-             <div id="showData"></div>
+    <div data-role="content">
+        <div class="panel-body">
+            <div class="form-inline">
+                <div class="form-group">
+                    <input id="in_text_subject" type="text" placeholder="Subject" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input id="in_number_priority" type="number" class="form-control" value="0" title="Priority">
+                </div>
             </div>
-        </div>     
-        <div data-theme="b" data-role="footer">           
+            <div class="form-group">
+                <input id="in_text_details" type="text" placeholder="Details" class="form-control"/>
+            </div>
         </div>
     </div>
-           
-
-    <div data-role="page" id="delete">
-        <div class="header"></div>
-        <p>Delete!</p>
-        <div class="footer"></div>
+    <div data-role="footer">
+        <button id="in_button_add_note" class="btn btn-success form-control">Submit</button>
     </div>
+</div>
+
+<div data-role="page" id="edit">
+    <div class="header"></div>
+    <p>Edit!</p>
+    <div class="footer"></div>
+</div>
+
+<div data-role="page" id="details">
+    <div data-role="header">
+        <div class="header"><h3>Details</h3></div>
+        <h3 id="noteTitle"></h3>
+    </div>
+    <div data-role="content">
+        <div class="panel-body">
+            <div id="showData"></div>
+        </div>
+    </div>
+    <div data-role="footer">
+    </div>
+</div>
+
+
+<div data-role="page" id="delete">
+    <div class="header"></div>
+    <p>Delete!</p>
+    <div class="footer"></div>
+</div>
 
 </body>
 </html>
