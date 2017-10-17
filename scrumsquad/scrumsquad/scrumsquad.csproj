@@ -101,6 +101,12 @@
     <Content Include="index_old.html" />
     <Content Include="Scripts\api.js" />
     <Content Include="Scripts\main.js" />
+    <Content Include="Styles\jquery.mobile.icons.min.css" />
+    <Content Include="Styles\myTheme.css" />
+    <Content Include="Styles\myTheme.min.css" />
+    <Content Include="Styles\myThemeE.css" />
+    <Content Include="Styles\ThirdTheme.css" />
+    <Content Include="Styles\ThirdTheme.min.css" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
