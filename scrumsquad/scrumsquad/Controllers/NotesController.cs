@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Web.Http;
 
 
@@ -15,74 +16,95 @@ namespace scrumsquad.Controllers
 {
     public class NotesController : ApiController
     {
-        MongoDatabase mongoDatabase;
+       // string collectionName = "Notes";  // production
+        string collectionName = "NotesTest";  // testing
 
-        Note[] notes = new Note[]
-         {
-           new Note { Priority = 3, Subject = "Wake up", Details = "Set alarm of 7:00 am and get out of bed."},
-           new Note { Priority = 2, Subject = "Eat breakfast", Details = "Eat a healthy breakfast."},
-           new Note { Priority = 5, Subject = "Go to work", Details = "Get to work before 9:00 am."}
-         };
-
-        private MongoDatabase RetreiveMongohqDb()
+        bool testing = false;
+        List<Note> noteList = new List<Note>();
+        // add default controller for normal opperation
+        public NotesController()
         {
-            MongoUrl myMongoURL = new MongoUrl(ConfigurationManager.ConnectionStrings["MongoHQ"].ConnectionString);
-            MongoClient mongoClient = new MongoClient(myMongoURL);
-            MongoServer server = mongoClient.GetServer();
-            return mongoClient.GetServer().GetDatabase("notedb");
+            testing = false;
         }
 
-        //public IEnumerable<Note> GetAllNotes()
-        //{
-        //    mongoDatabase = RetreiveMongohqDb();
-
-        //    List<Note> noteList = GetNoteList();
-        //    // noteList.Sort(); // comment this out until you implement the IComparable<Note>
-        //    // interface definition to your Note class,
-        //    return noteList;  // ASP API will convert a List of Note objects to json
-        //}
-
-        [HttpGet]
-        public IHttpActionResult GetNote(string id)  // make sure its string
+        // add controller that lets you pass in a fake db for testing
+        public NotesController(List<Note> FakeDataList)
         {
-            mongoDatabase = RetreiveMongohqDb();
+            noteList = FakeDataList;
+            testing = true;
+        }
 
-            List<Note> noteList = GetNoteList();
 
+
+
+        MongoDatabase mongoDatabase;
+
+        public IEnumerable<Note> GetAllNotes()
+
+        {
+            if (!testing)  // if not testing, read data from real db
+            {
+                mongoDatabase = RetreiveMongohqDb();
+
+
+                try
+                {
+                    var mongoList = mongoDatabase.GetCollection(collectionName).FindAll().AsEnumerable();
+                    noteList = (from note in mongoList
+                                select new Note
+                                {
+                                    Id = note["_id"].AsString,
+                                    Subject = note["Subject"].AsString,
+                                    Details = note["Details"].AsString,
+                                    Priority = note["Priority"].AsInt32
+
+                                }).ToList();
+                }
+                catch (Exception)
+                {
+                    throw new ApplicationException("failed to get data from Mongo");
+                }
+            }
+
+            noteList.Sort();
+            return noteList;
+        }
+
+
+
+        public IHttpActionResult GetNote(string id)
+        {
+            if (!testing)
+            {
+                mongoDatabase = RetreiveMongohqDb();
+
+
+                try
+                {
+                    var mongoList = mongoDatabase.GetCollection(collectionName).FindAll().AsEnumerable();
+                    noteList = (from nextNote in mongoList
+                                select new Note
+                                {
+                                    Id = nextNote["_id"].AsString,
+                                    Subject = nextNote["Subject"].AsString,
+                                    Details = nextNote["Details"].AsString,
+                                    Priority = nextNote["Priority"].AsInt32,
+                                }).ToList();
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+            }
             var note = noteList.FirstOrDefault((p) => p.Subject == id);
-
             if (note == null)
+            {
                 return NotFound();
-
+            }
             return Ok(note);
         }
 
-        public List<Note> GetNoteList()
-        {
-            mongoDatabase = RetreiveMongohqDb();
-
-            List<Note> noteList = new List<Note>();
-
-            try
-            {
-                var mongoList = mongoDatabase.GetCollection("Notes").FindAll().AsEnumerable();
-                noteList = (from nextNote in mongoList
-                            select new Note
-                            {   
-                                Id = nextNote["_id"].AsString,
-                                Subject = nextNote["Subject"].AsString,
-                                Details = nextNote["Details"].AsString,
-                                Priority = nextNote["Priority"].AsInt32,
-                            }).ToList();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            noteList.Sort(); 
-            return noteList;
-
-        }
 
         [HttpDelete]
         public HttpResponseMessage Delete(string id)
@@ -92,9 +114,11 @@ namespace scrumsquad.Controllers
             try
             {
                 mongoDatabase = RetreiveMongohqDb();
-                var mongoCollection = mongoDatabase.GetCollection("Notes");
+                var mongoCollection = mongoDatabase.GetCollection(collectionName);
                 var query = Query.EQ("_id", id);
                 WriteConcernResult results = mongoCollection.Remove(query);
+
+
 
                 if (results.DocumentsAffected < 1)
                 {
@@ -102,10 +126,12 @@ namespace scrumsquad.Controllers
                 }
 
             }
+
             catch (Exception ex)
             {
                 found = false;
             }
+
             if (!found)
             {
                 HttpResponseMessage badResponse = new HttpResponseMessage();
@@ -118,17 +144,15 @@ namespace scrumsquad.Controllers
                 goodResponse.StatusCode = HttpStatusCode.OK;
                 return goodResponse;
             }
- 
         }
+
 
         [HttpPost]
         public Note Save(Note newNote)
         {
-            
             mongoDatabase = RetreiveMongohqDb();
-            var noteList = mongoDatabase.GetCollection("Notes");
+            var noteList = mongoDatabase.GetCollection(collectionName);
             WriteConcernResult result;
-
             bool hasError = false;
             if (string.IsNullOrEmpty(newNote.Id))
             {
@@ -140,9 +164,9 @@ namespace scrumsquad.Controllers
             {
                 IMongoQuery query = Query.EQ("_id", newNote.Id);
                 IMongoUpdate update = Update
-                    .Set("Subject", newNote.Subject)
-                    .Set("Details", newNote.Details)
-                    .Set("Priority", newNote.Priority);
+                 .Set("Subject", newNote.Subject)
+                 .Set("Details", newNote.Details)
+                 .Set("Priority", newNote.Priority);
                 result = noteList.Update(query, update);
                 hasError = result.HasLastErrorMessage;
             }
@@ -153,9 +177,18 @@ namespace scrumsquad.Controllers
             else
             {
                 throw new HttpResponseException(HttpStatusCode.InternalServerError);
-            } 
+            }
         }
 
+        private MongoDatabase RetreiveMongohqDb()
+        {
+            // to make unit test work, had to not use the ConfigurationManager
+            string connectionString = "mongodb://scrumuser:scrumpass@ds036577.mlab.com:36577/notedb";
+            MongoUrl myMongoURL = new MongoUrl(connectionString);
+            //MongoUrl myMongoURL = new MongoUrl(ConfigurationManager.ConnectionStrings["MongoHQ"].ConnectionString);
+            MongoClient mongoClient = new MongoClient(myMongoURL);
+            MongoServer server = mongoClient.GetServer();
+            return mongoClient.GetServer().GetDatabase("notedb");
+        }
     }
-
 }
