@@ -16,7 +16,7 @@ namespace scrumsquad.Controllers
 {
     public class NotesController : ApiController
     {
-       // string collectionName = "Notes";  // production
+        //string collectionName = "Notes";  // production
         string collectionName = "NotesTest";  // testing
 
         bool testing = false;

@@ -96,5 +96,31 @@ namespace UnitTestProject1
             Assert.AreEqual(testNotes[2].Subject, contentResult.Content.Subject);
 
         }
+
+        [TestMethod]
+        // first test local logic, using fake data
+        public void GetFakeNote_ShouldReturnNotFound()
+        {
+            List<Note> testNotes = GenerateFakeDataList();
+            var controller = new NotesController(testNotes); // use 1 of 2 constructors
+
+            IHttpActionResult result = controller.GetNote("Test5");
+            var contentResult = result as NotFoundResult;
+
+            Assert.AreEqual(result, contentResult);
+
+        }
+        [TestMethod]
+        // now test against test data in mongo
+        public void GetMongoNote_ShouldReturnNotFound()
+        {
+            List<Note> testNotes = GenerateFakeDataList();
+            var controller = new NotesController(); // use other constructors
+
+            IHttpActionResult result = controller.GetNote("Test5");
+            var contentResult = result as NotFoundResult;
+
+            Assert.AreEqual(result, contentResult);           
+        }
     }
 }
