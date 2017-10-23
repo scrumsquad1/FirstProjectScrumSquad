@@ -128,14 +128,16 @@ namespace UnitTestProject1
                 // Arrange
                 List<Note> testNotes = GenerateFakeDataList();
                 var controller = new NotesController(testNotes);
-
-            // test to delete 59ed42eb4cc50b1be00fada8, should pass one time 
-            // but i need to manually retrive the id from mongo or by logging
-            // and then pass them in here
-           
-            HttpResponseMessage result = controller.Delete("addIdHere");
+            Note note = new Note();
+            note.Subject = "TestDelete";
+            note.Details = "TestDelete Details";
+            note.Priority = 10;
+            
+            Note result = controller.Save(note);
+            
+            HttpResponseMessage deleteOK = controller.Delete(result.Id);
                 var returnsOK = false;
-                if (result.StatusCode == HttpStatusCode.OK)
+                if (deleteOK.StatusCode == HttpStatusCode.OK)
                 {
                     returnsOK = true;
                 };
@@ -143,6 +145,30 @@ namespace UnitTestProject1
                 // Assert
                 Assert.IsTrue(returnsOK);
          }
+
+        [TestMethod]
+        public void GetMongoNote_DeleteReturnsOk()
+        {
+            // Arrange
+            List<Note> testNotes = GenerateFakeDataList();
+            var controller = new NotesController();
+            Note note = new Note();
+            note.Subject = "TestDelete";
+            note.Details = "TestDelete Details";
+            note.Priority = 10;
+
+            Note result = controller.Save(note);
+
+            HttpResponseMessage deleteOK = controller.Delete(result.Id);
+            var returnsOK = false;
+            if (deleteOK.StatusCode == HttpStatusCode.OK)
+            {
+                returnsOK = true;
+            };
+
+            // Assert
+            Assert.IsTrue(returnsOK);
+        }
 
         [TestMethod]
         public void GetMongoNote_VerifySavedNote()
