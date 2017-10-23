@@ -7,8 +7,8 @@ class NoteList {
     fetchNotesFromServer(callback) {
         apiGetNotes((err, result) => {
             if (!err) {
-                this.list = result;
-                this.onChange(this.list)
+                this.list = result;                 
+                this.onChange(this.list)           
             }
             if (callback)
                 callback(err, result);
@@ -18,7 +18,7 @@ class NoteList {
     addNoteToList(note, callback) {
         apiAddNote(note, (err, result) => {
             if (!err) {
-                this.list.push(result);
+                this.list.push(result);               
                 this.onChange(this.list);
             } else {
                 console.error(err);
@@ -47,6 +47,7 @@ class NoteList {
         if (this.checkHasList()) {
             apiDeleteNote(note, (err, result) => {
                 this.list.forEach((n) => {
+                    //n.subject === note.subject
                     if (n.Id === note.Id) {
                         this.list.splice(this.list.indexOf(note), 1);
                         this.onChange(this.list)

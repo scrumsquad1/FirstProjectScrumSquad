@@ -34,8 +34,7 @@ namespace scrumsquad.Controllers
             testing = true;
         }
 
-
-
+        
 
         MongoDatabase mongoDatabase;
 
@@ -58,14 +57,14 @@ namespace scrumsquad.Controllers
                                     Details = note["Details"].AsString,
                                     Priority = note["Priority"].AsInt32
 
-                                }).ToList();
+                                }).ToList();                 
                 }
                 catch (Exception)
                 {
                     throw new ApplicationException("failed to get data from Mongo");
                 }
             }
-
+            
             noteList.Sort();
             return noteList;
         }
@@ -115,6 +114,7 @@ namespace scrumsquad.Controllers
             {
                 mongoDatabase = RetreiveMongohqDb();
                 var mongoCollection = mongoDatabase.GetCollection(collectionName);
+                // var query = Query.EQ("_id", id);
                 var query = Query.EQ("_id", id);
                 WriteConcernResult results = mongoCollection.Remove(query);
 

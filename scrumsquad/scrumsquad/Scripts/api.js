@@ -43,8 +43,10 @@ function apiEditNote(note, callback) {
 }
 
 function apiDeleteNote(note, callback) {
+   // var subject = $('#deleteSubject').val();
     $.ajax({
         url: NOTES_URI + '/' + note.Id,
+      //  url: NOTES_URI + '/' + subject,
         type: 'DELETE',
         ...generateDefaultApiResponse(callback)
     });

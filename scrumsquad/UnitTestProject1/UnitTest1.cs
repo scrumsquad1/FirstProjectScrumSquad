@@ -37,7 +37,7 @@ namespace UnitTestProject1
                 workingList.Add(nextNote);
             }
             return workingList;
-        }
+        }       
 
         //=======================================================================
         // test first API   GetAllNotes()
@@ -121,6 +121,69 @@ namespace UnitTestProject1
             var contentResult = result as NotFoundResult;
 
             Assert.AreEqual(result, contentResult);           
+        }
+        [TestMethod]
+        public void GetFakeNote_DeleteReturnsOk()        
+        {
+                // Arrange
+                List<Note> testNotes = GenerateFakeDataList();
+                var controller = new NotesController(testNotes);
+
+            // test to delete 59ed42eb4cc50b1be00fada8, should pass one time 
+            // but i need to manually retrive the id from mongo or by logging
+            // and then pass them in here
+           
+            HttpResponseMessage result = controller.Delete("addIdHere");
+                var returnsOK = false;
+                if (result.StatusCode == HttpStatusCode.OK)
+                {
+                    returnsOK = true;
+                };
+
+                // Assert
+                Assert.IsTrue(returnsOK);
+         }
+
+        [TestMethod]
+        public void GetMongoNote_VerifySavedNote()
+        {           
+            List<Note> testNotes = GenerateFakeDataList();
+            var controller = new NotesController();
+            Note note = new Note();
+            note.Subject = "Test8";
+            note.Details = "Test8 Details";
+            note.Priority = 8; 
+   
+            Note result = controller.Save(note);
+            IHttpActionResult verifyNote = controller.GetNote("Test8");
+            var contentResult = verifyNote as OkNegotiatedContentResult<Note>;
+          
+            controller.Delete(result.Id);
+            // Assert
+            Assert.AreEqual(result.Subject, contentResult.Content.Subject);
+        }
+
+        [TestMethod]
+        public void GetFakeNote_VerifySavedNote()
+        {           
+            List<Note> testNotes = GenerateFakeDataList();
+            Note note = new Note();
+            note.Subject = "Test8";
+            note.Details = "Test8 Details";
+            note.Priority = 8;
+
+            testNotes.Add(note);
+
+            var controller = new NotesController(testNotes);
+            
+            Note result = controller.Save(note);
+            IHttpActionResult verifyNote = controller.GetNote("Test8");
+            var contentResult = verifyNote as OkNegotiatedContentResult<Note>;
+
+            testNotes.Remove(note);
+            controller.Delete(result.Id);
+            // Assert
+            Assert.AreEqual(result.Subject, contentResult.Content.Subject);
         }
     }
 }
