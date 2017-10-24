@@ -104,10 +104,9 @@ namespace UnitTestProject1
             List<Note> testNotes = GenerateFakeDataList();
             var controller = new NotesController(testNotes); // use 1 of 2 constructors
 
-            IHttpActionResult result = controller.GetNote("Test5");
-            var contentResult = result as NotFoundResult;
+            IHttpActionResult result = controller.GetNote("Test5");          
 
-            Assert.AreEqual(result, contentResult);
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
 
         }
         [TestMethod]
@@ -117,10 +116,9 @@ namespace UnitTestProject1
             List<Note> testNotes = GenerateFakeDataList();
             var controller = new NotesController(); // use other constructors
 
-            IHttpActionResult result = controller.GetNote("Test5");
-            var contentResult = result as NotFoundResult;
+            IHttpActionResult result = controller.GetNote("Test5");           
 
-            Assert.AreEqual(result, contentResult);           
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
         [TestMethod]
         public void GetFakeNote_DeleteReturnsOk()        
